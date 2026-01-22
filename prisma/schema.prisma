@@ -1,0 +1,127 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model ScrapeJob {
+  id               String   @id @default(cuid())
+  platform         String
+  status           String   @default("queued") // queued, running, completed, failed, cancelled
+  progress         Int      @default(0)
+  productsScraped  Int      @default(0)
+  productsFailed   Int      @default(0)
+  captchaEvents    Int      @default(0)
+  config           String   // JSON string
+  error            String?
+  startedAt        DateTime?
+  completedAt      DateTime?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  products         Product[]
+  logs             ScrapingLog[]
+
+  @@index([status])
+  @@index([platform])
+  @@index([createdAt])
+}
+
+model Product {
+  id                        String   @id @default(cuid())
+  jobId                     String
+  platform                  String
+  productId                 String
+  productUrl                String
+  title                     String
+  description               String?
+  mainCategory              String?
+  subCategory               String?
+  price                     Float?
+  originalPrice             Float?
+  currency                  String?
+  shippingCost              Float?
+  shippingTimeEstimate      String?
+  vendorName                String?
+  vendorRating              Float?
+  productRating             Float?
+  reviewCount               Int?
+  imagesUrls                String?  // JSON string array
+  variantOptions            String?  // JSON string
+  stockStatus               String?
+  minimumOrderQuantity      Int?
+  weight                    Float?
+  dimensions                String?
+  sku                       String?
+  dateScraped               DateTime @default(now())
+  platformSource            String
+
+  job                       ScrapeJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@unique([jobId, productId])
+  @@index([jobId])
+  @@index([platform])
+  @@index([productId])
+}
+
+model ScrapingConfig {
+  id                  String   @id @default(cuid())
+  name                String
+  platform            String
+  urlPatterns         String   // JSON string array
+  rateLimit           Int      @default(6)
+  proxyRotation       Boolean  @default(true)
+  javascriptRender    Boolean  @default(true)
+  maxRetries          Int      @default(5)
+  timeoutSeconds      Int      @default(30)
+  captchaHandling     String   @default("pause") // pause, solve, skip
+  maxProducts         Int?
+  robotsCompliance    Boolean  @default(true)
+  selectors           String?  // JSON string for custom selectors
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([platform])
+}
+
+model ScrapingLog {
+  id          String   @id @default(cuid())
+  jobId       String
+  level       String   // info, warning, error, debug
+  message     String
+  details     String?  // JSON string for additional context
+  timestamp   DateTime @default(now())
+
+  job         ScrapeJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+  @@index([level])
+  @@index([timestamp])
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  name      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Post {
+  id        String   @id @default(cuid())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

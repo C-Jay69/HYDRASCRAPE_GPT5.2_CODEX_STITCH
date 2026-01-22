@@ -1,0 +1,16 @@
+{
+  "name": "scraping-websocket-service",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "bun --hot index.ts"
+  },
+  "dependencies": {
+    "socket.io": "^4.7.5",
+    "@prisma/client": "^6.11.1"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "prisma": "^6.11.1"
+  }
+}
