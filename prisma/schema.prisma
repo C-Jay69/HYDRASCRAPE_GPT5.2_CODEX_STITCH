@@ -13,20 +13,81 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model ScrapeJob {
+  id          String         @id @default(cuid())
+  status      String         @default("pending") // pending, running, completed, failed
+  platform    String
+  progress    Int            @default(0)
+  totalItems  Int            @default(0)
+  itemsScraped Int           @default(0)
+  error       String?
+  startedAt   DateTime?
+  completedAt DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  
+  products    Product[]
+  logs        ScrapeLog[]
 }
 
-model Post {
-  id        String   @id @default(cuid())
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+model Product {
+  id              String      @id @default(cuid())
+  jobId           String
+  productId       String?
+  url             String
+  title           String?
+  price           Float?
+  currency        String?
+  description     String?
+  mainCategory    String?
+  subCategory     String?
+  shippingCost    Float?
+  shippingTime    String?
+  sellerName      String?
+  sellerRating    Float?
+  productRating   Float?
+  reviewCount     Int?
+  images          String?     // JSON string of image URLs
+  variants        String?     // JSON string of variants
+  stockStatus     String?
+  minOrderQty     Int?
+  weight          String?
+  dimensions      String?
+  sku             String?
+  platformSource  String?
+  dateScraped     DateTime    @default(now())
+  
+  job             ScrapeJob   @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}
+
+model ScrapeLog {
+  id        String    @id @default(cuid())
+  jobId     String
+  level     String    // info, warning, error
+  message   String
+  timestamp DateTime  @default(now())
+  
+  job       ScrapeJob @relation(fields: [jobId], references: [id], onDelete: Cascade)
+
+  @@index([jobId])
+}
+
+model ScrapingConfig {
+  id               String   @id @default(cuid())
+  platform         String
+  name             String
+  urlPatterns      String   // JSON array of strings
+  rateLimit        Int      @default(2)
+  proxyRotation    Boolean  @default(true)
+  javascriptRender Boolean  @default(true)
+  maxRetries       Int      @default(5)
+  timeoutSeconds   Int      @default(30)
+  captchaHandling  String   @default("pause")
+  maxProducts      Int      @default(100)
+  robotsCompliance Boolean  @default(true)
+  selectors        String?  // JSON string of selectors
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
 }
