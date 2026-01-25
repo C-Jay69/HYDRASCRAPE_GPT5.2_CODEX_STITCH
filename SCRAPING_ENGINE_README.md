@@ -1,4 +1,4 @@
-# ScrapeForge - Production-Ready Web Scraping Engine
+# HYDRASKRIPT - Production-Ready Web Scraping Engine
 
 A fully functional, production-ready web scraping engine with Next.js 16, TypeScript, Prisma, and Playwright.
 
@@ -54,17 +54,18 @@ A fully functional, production-ready web scraping engine with Next.js 16, TypeSc
 
 1. **Install Dependencies**
 ```bash
-bun install
+pnpm install
 ```
 
 2. **Set Up Database**
 ```bash
-bun run db:push
+npx prisma generate
+npx prisma db push
 ```
 
 3. **Start Development Server**
 ```bash
-bun run dev
+pnpm dev
 ```
 
 The application will be available at `http://localhost:3000`
@@ -120,7 +121,7 @@ const blob = await response.blob()
 const url = window.URL.createObjectURL(blob)
 const a = document.createElement('a')
 a.href = url
-a.download = `scrapeforge-export-${jobId}.csv`
+a.download = `hydraskript-export-${jobId}.csv`
 a.click()
 ```
 
@@ -274,7 +275,7 @@ CJ-493034|https://cjdropshipping.com/...|Wireless Earbuds|29.99|USD|https://...|
 
 Run linting:
 ```bash
-bun run lint
+pnpm lint
 ```
 
 ## 📁 Project Structure
@@ -326,8 +327,8 @@ DATABASE_URL="file:./db/custom.db"
 ### Production Build
 
 ```bash
-bun run build
-bun run start
+pnpm build
+pnpm start
 ```
 
 ## 📝 Notes
@@ -350,7 +351,7 @@ jobManager.startJob(job.id, platform, configData)
 2. Start the WebSocket service:
 ```bash
 cd mini-services/scraping-websocket
-bun run dev
+pnpm dev
 ```
 
 ## 📄 License

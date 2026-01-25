@@ -10,6 +10,8 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   experimental: {
     turbopack: {
+      // Explicitly set the root to the current directory to avoid "illegal path" 
+      // and workspace root detection issues in WSL/Windows environments.
       root: path.resolve(__dirname),
     },
   },
